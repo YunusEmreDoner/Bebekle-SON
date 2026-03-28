@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useState, createContext, useCallback } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabNavigator from './MainTabNavigator';
+import AuthNavigator from './AuthNavigator';
 import ProfileStackNavigator from './ProfileStackNavigator';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
+
+export const OnboardingContext = createContext(() => {});
 
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
+  const [isOnboarded, setIsOnboarded] = useState(false);
+
+  const completeOnboarding = useCallback(() => {
+    setIsOnboarded(true);
+  }, []);
+
+  if (!isOnboarded) {
+    return (
+      <OnboardingContext.Provider value={completeOnboarding}>
+        <AuthNavigator />
+      </OnboardingContext.Provider>
+    );
+  }
+
   return (
     <Stack.Navigator>
       <Stack.Screen
