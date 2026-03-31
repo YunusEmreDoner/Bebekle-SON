@@ -1,81 +1,119 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, TouchableWithoutFeedback, TouchableOpacity,
-  Dimensions, StyleSheet, StatusBar, Animated,
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+  StatusBar,
+  Animated,
+  PanResponder,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../../theme/colors';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const STORY_DURATION = 5000;
 
-const STORIES = [
-  { id: '1', title: 'Story 1', color: COLORS.pudraPembesi },
-  { id: '2', title: 'Story 2', color: COLORS.lavanda },
-  { id: '3', title: 'Story 3', color: COLORS.mor },
-  { id: '4', title: 'Story 4', color: COLORS.koyuMor },
-  { id: '5', title: 'Story 5', color: COLORS.pudraPembesi },
-];
-
 export default function StoryViewerScreen({ navigation, route }) {
-  const startIndex = route?.params?.storyId
-    ? STORIES.findIndex((s) => s.id === route.params.storyId)
-    : 0;
-  const [currentIndex, setCurrentIndex] = useState(Math.max(startIndex, 0));
+  const stories = route?.params?.stories || [];
+  const initialIndex = route?.params?.initialIndex ?? 0;
+  const [currentIndex, setCurrentIndex] = useState(
+    Math.max(0, Math.min(initialIndex, stories.length - 1))
+  );
+  const currentIndexRef = useRef(currentIndex);
+  const tapX = useRef(0);
+  const moved = useRef(false);
   const progress = useRef(new Animated.Value(0)).current;
   const animRef = useRef(null);
 
-  const startProgress = () => {
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
+  useEffect(() => {
+    if (stories.length === 0) {
+      navigation.goBack();
+      return;
+    }
     progress.setValue(0);
+    if (animRef.current) animRef.current.stop();
     animRef.current = Animated.timing(progress, {
       toValue: 1,
       duration: STORY_DURATION,
       useNativeDriver: false,
     });
     animRef.current.start(({ finished }) => {
-      if (finished) goNext();
+      if (!finished) return;
+      const idx = currentIndexRef.current;
+      if (idx < stories.length - 1) {
+        setCurrentIndex(idx + 1);
+      } else {
+        navigation.goBack();
+      }
     });
-  };
-
-  useEffect(() => {
-    startProgress();
     return () => {
       if (animRef.current) animRef.current.stop();
     };
   }, [currentIndex]);
 
-  const goNext = () => {
-    if (currentIndex < STORIES.length - 1) {
-      setCurrentIndex((i) => i + 1);
-    } else {
-      navigation.goBack();
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: (evt) => {
+        tapX.current = evt.nativeEvent.locationX;
+        moved.current = false;
+      },
+      onPanResponderMove: (_, gs) => {
+        if (Math.abs(gs.dx) > 5) moved.current = true;
+      },
+      onPanResponderRelease: (_, gs) => {
+        const idx = currentIndexRef.current;
+        if (!moved.current) {
+          // Tap
+          if (tapX.current < SCREEN_WIDTH * 0.4) {
+            if (idx > 0) setCurrentIndex(idx - 1);
+          } else {
+            if (idx < stories.length - 1) setCurrentIndex(idx + 1);
+            else navigation.goBack();
+          }
+        } else if (gs.dx < -50) {
+          if (idx < stories.length - 1) setCurrentIndex(idx + 1);
+          else navigation.goBack();
+        } else if (gs.dx > 50) {
+          if (idx > 0) setCurrentIndex(idx - 1);
+        }
+      },
+    })
+  ).current;
+
+  const handleLinkTo = (linkTo) => {
+    if (linkTo === 'News') {
+      navigation.navigate('DailyNews');
+    } else if (linkTo === 'Insights' || linkTo === 'Journal' || linkTo === 'Community') {
+      navigation.navigate(linkTo);
     }
   };
 
-  const goPrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((i) => i - 1);
-    }
-  };
+  if (stories.length === 0) return null;
 
-  const handleTap = (evt) => {
-    const x = evt.nativeEvent.locationX;
-    if (x < SCREEN_WIDTH / 2) {
-      goPrev();
-    } else {
-      goNext();
-    }
-  };
-
-  const story = STORIES[currentIndex];
+  const story = stories[currentIndex];
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: story.backgroundColor || '#F2C4CE' }]}
+      {...panResponder.panHandlers}
+    >
       <StatusBar hidden />
+
+      {/* Story content — pointerEvents none so PanResponder captures touches here */}
+      <View style={styles.contentArea} pointerEvents="none">
+        <Text style={styles.storyTitle}>{story.title}</Text>
+        <Text style={styles.storyContent}>{story.content}</Text>
+      </View>
 
       {/* Progress bars */}
       <View style={styles.progressRow}>
-        {STORIES.map((_, i) => (
+        {stories.map((_, i) => (
           <View key={i} style={styles.progressTrack}>
             <Animated.View
               style={[
@@ -85,10 +123,7 @@ export default function StoryViewerScreen({ navigation, route }) {
                     i < currentIndex
                       ? '100%'
                       : i === currentIndex
-                        ? progress.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: ['0%', '100%'],
-                          })
+                        ? progress.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] })
                         : '0%',
                 },
               ]}
@@ -97,17 +132,17 @@ export default function StoryViewerScreen({ navigation, route }) {
         ))}
       </View>
 
-      {/* Close button */}
+      {/* Close button — TouchableOpacity claims its own touch, PanResponder won't intercept */}
       <TouchableOpacity style={styles.closeBtn} onPress={() => navigation.goBack()}>
         <Ionicons name="close" size={28} color="#fff" />
       </TouchableOpacity>
 
-      {/* Story content */}
-      <TouchableWithoutFeedback onPress={handleTap}>
-        <View style={[styles.storyContent, { backgroundColor: story.color }]}>
-          <Text style={styles.storyTitle}>{story.title}</Text>
-        </View>
-      </TouchableWithoutFeedback>
+      {/* Daha Fazla button */}
+      {story.linkTo && (
+        <TouchableOpacity style={styles.linkBtn} onPress={() => handleLinkTo(story.linkTo)}>
+          <Text style={styles.linkBtnText}>Daha Fazla</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -115,7 +150,26 @@ export default function StoryViewerScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+  },
+  contentArea: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  storyTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  storyContent: {
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center',
+    lineHeight: 24,
+    opacity: 0.9,
   },
   progressRow: {
     flexDirection: 'row',
@@ -131,7 +185,7 @@ const styles = StyleSheet.create({
   progressTrack: {
     flex: 1,
     height: 3,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.35)',
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -147,14 +201,21 @@ const styles = StyleSheet.create({
     zIndex: 20,
     padding: 4,
   },
-  storyContent: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  linkBtn: {
+    position: 'absolute',
+    bottom: 48,
+    alignSelf: 'center',
+    zIndex: 20,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 28,
+    paddingVertical: 12,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.6)',
   },
-  storyTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+  linkBtnText: {
     color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

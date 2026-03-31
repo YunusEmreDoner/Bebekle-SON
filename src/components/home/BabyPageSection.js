@@ -1,59 +1,206 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Platform,
+  Modal,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { COLORS } from '../../theme/colors';
+import { calculatePregnancyInfo } from '../../data/pregnancyHelper';
+import { getWeekData } from '../../data/weekly/index';
+import { getDayData } from '../../data/daily/index';
 
 const { height } = Dimensions.get('window');
 
-export default function BabyPageSection({ navigation }) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.placeholder}>Hamilelik Haftası: 20. Hafta</Text>
-      <Text style={styles.subPlaceholder}>[Baby Page Area]</Text>
+const formatDate = (d) =>
+  `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
 
+export default function BabyPageSection({ navigation, dueDate, onDueDateChange }) {
+  const [showPicker, setShowPicker] = useState(false);
+  const [tempDate, setTempDate] = useState(null);
+
+  const pregnancyInfo = calculatePregnancyInfo(dueDate);
+  const weekData = getWeekData(pregnancyInfo.currentWeek);
+  getDayData(pregnancyInfo.currentDay);
+
+  const handleDateChange = (event, selectedDate) => {
+    if (Platform.OS === 'android') {
+      setShowPicker(false);
+      if (selectedDate) onDueDateChange(selectedDate);
+    } else {
+      if (selectedDate) setTempDate(selectedDate);
+    }
+  };
+
+  const handleIOSConfirm = () => {
+    if (tempDate) onDueDateChange(tempDate);
+    setShowPicker(false);
+    setTempDate(null);
+  };
+
+  const handleIOSCancel = () => {
+    setShowPicker(false);
+    setTempDate(null);
+  };
+
+  return (
+    <View style={[styles.container, { backgroundColor: weekData.backgroundColors.secondary }]}>
+      {/* Due date row */}
+      <TouchableOpacity style={styles.dueDateRow} onPress={() => setShowPicker(true)}>
+        <Text style={styles.dueDateText}>Tahmini doğum: {formatDate(dueDate)}</Text>
+        <Ionicons name="pencil-outline" size={14} color={COLORS.mor} style={styles.editIcon} />
+      </TouchableOpacity>
+
+      {/* Main info card */}
+      <View style={[styles.card, { backgroundColor: weekData.backgroundColors.primary }]}>
+        <Text style={styles.weekTitle}>{pregnancyInfo.currentWeek}. Hafta</Text>
+        <Text style={styles.babySize}>{weekData.babySize} büyüklüğünde</Text>
+
+        <View style={styles.statsRow}>
+          {weekData.babyLength && (
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{weekData.babyLength}</Text>
+              <Text style={styles.statLabel}>Boy</Text>
+            </View>
+          )}
+          {weekData.babyWeight && (
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{weekData.babyWeight}</Text>
+              <Text style={styles.statLabel}>Ağırlık</Text>
+            </View>
+          )}
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{pregnancyInfo.daysUntilDue}</Text>
+            <Text style={styles.statLabel}>Gün kaldı</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Action buttons */}
       <View style={styles.quickActions}>
         <TouchableOpacity
           style={styles.actionBox}
-          onPress={() => navigation.navigate('DailyTip')}
+          onPress={() => navigation.navigate('DailyTip', { currentDay: pregnancyInfo.currentDay })}
         >
           <Text style={styles.actionText}>Daily Tip</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.actionBox}
-          onPress={() => navigation.navigate('BabyDevelopment')}
+          onPress={() => navigation.navigate('BabyDevelopment', { currentWeek: pregnancyInfo.currentWeek })}
         >
           <Text style={styles.actionText}>What Happens to Baby</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.actionBox}
-          onPress={() => navigation.navigate('MyBody')}
+          onPress={() => navigation.navigate('MyBody', { currentWeek: pregnancyInfo.currentWeek })}
         >
           <Text style={styles.actionText}>My Body</Text>
         </TouchableOpacity>
       </View>
+
+      {/* DatePicker — Android */}
+      {Platform.OS === 'android' && showPicker && (
+        <DateTimePicker
+          value={dueDate}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+          minimumDate={new Date()}
+        />
+      )}
+
+      {/* DatePicker — iOS Modal */}
+      {Platform.OS === 'ios' && (
+        <Modal visible={showPicker} transparent animationType="slide">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <TouchableOpacity onPress={handleIOSCancel}>
+                  <Text style={styles.modalCancel}>İptal</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleIOSConfirm}>
+                  <Text style={styles.modalDone}>Tamam</Text>
+                </TouchableOpacity>
+              </View>
+              <DateTimePicker
+                value={tempDate || dueDate}
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+                minimumDate={new Date()}
+                locale="tr-TR"
+              />
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    height: height * 0.4,
-    backgroundColor: COLORS.pudraPembesi,
-    justifyContent: 'center',
-    alignItems: 'center',
+    minHeight: height * 0.42,
     padding: 16,
+    paddingTop: 12,
   },
-  placeholder: {
-    fontSize: 18,
-    fontWeight: '600',
+  dueDateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  dueDateText: {
+    fontSize: 13,
     color: COLORS.metin,
-    marginBottom: 8,
+    fontWeight: '500',
   },
-  subPlaceholder: {
+  editIcon: {
+    marginLeft: 5,
+  },
+  card: {
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  weekTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: COLORS.metin,
+    marginBottom: 4,
+  },
+  babySize: {
     fontSize: 14,
     color: COLORS.metinAcik,
-    marginBottom: 24,
+    marginBottom: 16,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 24,
+    justifyContent: 'center',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.metin,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: COLORS.metinAcik,
+    marginTop: 2,
   },
   quickActions: {
     flexDirection: 'row',
@@ -73,5 +220,32 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: COLORS.mor,
     textAlign: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  modalContent: {
+    backgroundColor: COLORS.beyaz,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  modalCancel: {
+    fontSize: 16,
+    color: COLORS.metinAcik,
+  },
+  modalDone: {
+    fontSize: 16,
+    color: COLORS.mor,
+    fontWeight: '600',
   },
 });

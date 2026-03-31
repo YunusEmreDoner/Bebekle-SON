@@ -1,65 +1,69 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
 import { COLORS } from '../../theme/colors';
 
-const STORIES = [
-  { id: '1', label: 'Story 1' },
-  { id: '2', label: 'Story 2' },
-  { id: '3', label: 'Story 3' },
-  { id: '4', label: 'Story 4' },
-  { id: '5', label: 'Story 5' },
-];
+export default function DailyStoriesRow({ stories, navigation }) {
+  if (!stories || stories.length === 0) return null;
 
-export default function DailyStoriesRow({ navigation }) {
   return (
-    <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Daily Stories</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll}>
-        {STORIES.map((story) => (
-          <TouchableOpacity
-            key={story.id}
-            style={styles.storyCircle}
-            onPress={() => navigation.navigate('StoryViewer', { storyId: story.id })}
-          >
-            <View style={styles.circle} />
-            <Text style={styles.storyLabel}>{story.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+      style={styles.scroll}
+    >
+      {stories.map((story, index) => (
+        <TouchableOpacity
+          key={story.id}
+          style={styles.storyItem}
+          onPress={() => navigation.navigate('StoryViewer', { stories, initialIndex: index })}
+        >
+          <View style={[styles.circle, { backgroundColor: story.backgroundColor || COLORS.lavanda }]}>
+            {story.image && (
+              <Image source={story.image} style={styles.circleImage} />
+            )}
+          </View>
+          <Text style={styles.storyLabel} numberOfLines={1}>
+            {story.title}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 12,
+  scroll: {
     backgroundColor: COLORS.beyaz,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.metin,
-    paddingHorizontal: 16,
-    marginBottom: 8,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 14,
   },
-  scroll: {
-    paddingHorizontal: 12,
-  },
-  storyCircle: {
+  storyItem: {
     alignItems: 'center',
-    marginHorizontal: 6,
+    width: 70,
   },
   circle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: COLORS.lavanda,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     borderWidth: 2,
     borderColor: COLORS.mor,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  circleImage: {
+    width: '100%',
+    height: '100%',
   },
   storyLabel: {
     fontSize: 11,
-    color: COLORS.metinAcik,
+    color: COLORS.metin,
+    textAlign: 'center',
     marginTop: 4,
+    width: 70,
   },
 });
