@@ -1,23 +1,31 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import PrimaryButton from '../../components/common/PrimaryButton';
 
 export default function NameInputScreen({ navigation }) {
   const [name, setName] = useState('');
+  const [focused, setFocused] = useState(false);
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.content}>
-        <TextInput
-          style={styles.input}
-          value={name}
-          onChangeText={setName}
-          placeholder="Adını yaz..."
-          placeholderTextColor="#7A7A7A"
-          multiline
-          textAlignVertical="top"
-        />
+      <View style={styles.top}>
+        <Text style={styles.title}>Adınız ne?</Text>
+        <Text style={styles.subtitle}>Sizi tanımak istiyoruz</Text>
       </View>
+
+      <TextInput
+        style={[styles.input, focused && styles.inputFocused]}
+        value={name}
+        onChangeText={setName}
+        placeholder="Adınızı yazın..."
+        placeholderTextColor="#7A7A7A"
+        multiline={false}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+      />
+
+      <View style={styles.spacer} />
 
       <View style={styles.bottom}>
         <PrimaryButton
@@ -31,17 +39,38 @@ export default function NameInputScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
-  content: { flex: 1, justifyContent: 'center', paddingHorizontal: 20 },
+  safe: { flex: 1, backgroundColor: '#FDF6F0' },
+  top: {
+    alignItems: 'center',
+    marginTop: '15%',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '600',
+    color: '#3D3D3D',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#7A7A7A',
+    textAlign: 'center',
+    marginTop: 8,
+  },
   input: {
-    height: 260,
+    height: 52,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E8E0E5',
-    borderRadius: 16,
-    padding: 20,
-    fontSize: 18,
+    paddingHorizontal: 16,
+    fontSize: 16,
     color: '#3D3D3D',
-    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginTop: 32,
   },
-  bottom: { paddingBottom: 24 },
+  inputFocused: {
+    borderColor: '#C066A0',
+  },
+  spacer: { flex: 1 },
+  bottom: { marginBottom: 40 },
 });

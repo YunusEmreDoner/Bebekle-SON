@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FlipCard from '../../components/auth/FlipCard';
 import PrimaryButton from '../../components/common/PrimaryButton';
 
-const CARD_COUNT = 6;
+const LABELS = ['Hamilelik', 'Doğum', 'Emzirme', 'Bebek Bakımı', 'Anne Sağlığı', 'Beslenme'];
 
 export default function FlipCards6Screen({ navigation }) {
   const [flippedIndex, setFlippedIndex] = useState(null);
@@ -34,19 +35,23 @@ export default function FlipCards6Screen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe}>
+      <View style={styles.questionArea} />
+
       <View style={styles.content}>
         <View style={styles.grid}>
-          {Array.from({ length: CARD_COUNT }, (_, i) => (
+          {LABELS.map((label, i) => (
             <FlipCard
               key={i}
               isFlipped={flippedIndex === i}
               isSelected={selectedSet.has(i)}
               onPress={() => handlePress(i)}
               style={styles.card}
+              backLabel={label}
             />
           ))}
         </View>
       </View>
+
       <View style={styles.bottom}>
         <PrimaryButton title="İlerle" onPress={() => navigation.navigate('Placeholder16')} />
       </View>
@@ -55,8 +60,14 @@ export default function FlipCards6Screen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
-  content: { flex: 1, justifyContent: 'center', paddingHorizontal: 20 },
+  safe: { flex: 1, backgroundColor: '#FDF6F0' },
+  questionArea: {
+    height: 60,
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  content: { flex: 1, paddingHorizontal: 20, justifyContent: 'center' },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -64,9 +75,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   card: {
-    width: '47%',
+    width: '44%',
     height: 120,
-    marginBottom: 0,
   },
-  bottom: { paddingBottom: 24 },
+  bottom: { marginBottom: 40 },
 });

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AccordionItem from '../../components/auth/AccordionItem';
 import PrimaryButton from '../../components/common/PrimaryButton';
 
@@ -19,25 +20,45 @@ export default function DateMethodScreen({ navigation }) {
     setOpenIndex((prev) => (prev === i ? null : i));
   };
 
+  const handleDateChange = (index, field, value) => {
+    setDates((prev) => ({
+      ...prev,
+      [index]: { ...(prev[index] || {}), [field]: value },
+    }));
+  };
+
+  const currentDate = openIndex !== null ? dates[openIndex] : null;
+  const isDateComplete =
+    currentDate &&
+    currentDate.day?.length === 2 &&
+    currentDate.month?.length === 2 &&
+    currentDate.year?.length === 4;
+
   return (
     <SafeAreaView style={styles.safe}>
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentInner}>
+      <View style={styles.top}>
+        <Text style={styles.title}>Bebeğinizin doğum tarihini hesaplayalım</Text>
+        <Text style={styles.subtitle}>Aşağıdaki yöntemlerden birini seçin</Text>
+      </View>
+
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollInner}>
         {METHODS.map((title, i) => (
           <AccordionItem
             key={i}
             title={title}
             isOpen={openIndex === i}
             onToggle={() => toggleAccordion(i)}
-            dateValue={dates[i] || ''}
-            onDateChange={(v) => setDates((prev) => ({ ...prev, [i]: v }))}
+            dateValue={dates[i] || {}}
+            onDateChange={(field, value) => handleDateChange(i, field, value)}
           />
         ))}
       </ScrollView>
+
       <View style={styles.bottom}>
         <PrimaryButton
           title="İlerle"
           onPress={() => navigation.navigate('Placeholder13')}
-          disabled={openIndex === null}
+          disabled={!isDateComplete}
         />
       </View>
     </SafeAreaView>
@@ -45,8 +66,25 @@ export default function DateMethodScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
-  content: { flex: 1 },
-  contentInner: { paddingHorizontal: 20, paddingTop: 24 },
-  bottom: { paddingBottom: 24 },
+  safe: { flex: 1, backgroundColor: '#FDF6F0' },
+  top: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#3D3D3D',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#7A7A7A',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  scroll: { flex: 1 },
+  scrollInner: { paddingHorizontal: 20 },
+  bottom: { marginBottom: 40 },
 });

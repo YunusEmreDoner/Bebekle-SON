@@ -1,11 +1,10 @@
-import React, { useState, createContext, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabNavigator from './MainTabNavigator';
 import AuthNavigator from './AuthNavigator';
 import ProfileStackNavigator from './ProfileStackNavigator';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
-
-export const OnboardingContext = createContext(() => {});
+import { OnboardingContext } from '../context/OnboardingContext';
 
 const Stack = createNativeStackNavigator();
 

@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#D0D0D0',
+    backgroundColor: '#E8E0E5',
   },
   dotActive: {
     backgroundColor: '#C066A0',

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Animated, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
-export default function FlipCard({ isFlipped, isSelected, onPress, style }) {
+export default function FlipCard({ isFlipped, isSelected, onPress, style, backLabel }) {
   const anim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function FlipCard({ isFlipped, isSelected, onPress, style }) {
           { transform: [{ perspective: 800 }, { rotateY: backRotate }] },
         ]}
       >
-        <Text style={styles.backText}>✓</Text>
+        <Text style={styles.backText}>{backLabel || '✓'}</Text>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -52,8 +52,8 @@ export default function FlipCard({ isFlipped, isSelected, onPress, style }) {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: 14,
+    borderWidth: 0.5,
     borderColor: '#E8E0E5',
   },
   selected: {
@@ -66,13 +66,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     backfaceVisibility: 'hidden',
   },
   front: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#FFFFFF',
   },
   back: {
     backgroundColor: '#D4C5F0',
@@ -80,11 +80,11 @@ const styles = StyleSheet.create({
   frontText: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#7A7A7A',
+    color: '#D4C5F0',
   },
   backText: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#FFFFFF',
   },
 });

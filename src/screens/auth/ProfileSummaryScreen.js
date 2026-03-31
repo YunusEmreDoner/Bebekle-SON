@@ -1,5 +1,6 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import PrimaryButton from '../../components/common/PrimaryButton';
 
 export default function ProfileSummaryScreen({ navigation }) {
@@ -23,7 +24,7 @@ export default function ProfileSummaryScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
+  safe: { flex: 1, backgroundColor: '#FDF6F0' },
   content: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
   titleBar: {
     height: 30,
@@ -42,13 +43,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 160,
     borderRadius: 16,
-    backgroundColor: '#FDF6F0',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: '#B0B0B0',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 0.5,
+    borderColor: '#E8E0E5',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   summaryText: { fontSize: 16, color: '#7A7A7A' },
   note: {
@@ -57,5 +62,5 @@ const styles = StyleSheet.create({
     marginTop: 12,
     textAlign: 'center',
   },
-  bottom: { paddingBottom: 24 },
+  bottom: { marginBottom: 40 },
 });

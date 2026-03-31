@@ -1,25 +1,34 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import PrimaryButton from '../../components/common/PrimaryButton';
 
-const OPTIONS = ['Seçenek 1', 'Seçenek 2', 'Seçenek 3', 'Seçenek 4'];
+const OPTIONS = [
+  { label: 'Anne', icon: 'woman-outline', iconColor: '#C066A0', iconBg: '#F2C4CE' },
+  { label: 'Baba', icon: 'man-outline', iconColor: '#9B5CC4', iconBg: '#D4C5F0' },
+  { label: 'Dadı / Bakıcı', icon: 'people-outline', iconColor: '#C066A0', iconBg: '#F2C4CE' },
+  { label: 'Diğer', icon: 'ellipsis-horizontal-circle-outline', iconColor: '#9B5CC4', iconBg: '#D4C5F0' },
+];
 
 export default function GoalSelectionScreen({ navigation }) {
   const [selected, setSelected] = useState(null);
+  const [otherText, setOtherText] = useState('');
+
+  const isOther = selected === 3;
+  const canProceed = selected !== null && (!isOther || otherText.trim().length > 0);
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={26} color="#3D3D3D" />
+          <Ionicons name="chevron-back" size={26} color="#7A7A7A" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <View style={styles.questionBox}>
-          <Text style={styles.questionText}>Soru alanı</Text>
-        </View>
+        <Text style={styles.title}>Siz kimsiniz?</Text>
+        <Text style={styles.subtitle}>Size en uygun deneyimi sunabilmemiz için</Text>
 
         <View style={styles.grid}>
           {OPTIONS.map((opt, i) => (
@@ -29,12 +38,25 @@ export default function GoalSelectionScreen({ navigation }) {
               onPress={() => setSelected(i)}
               activeOpacity={0.7}
             >
+              <View style={[styles.iconCircle, { backgroundColor: opt.iconBg }]}>
+                <Ionicons name={opt.icon} size={36} color={opt.iconColor} />
+              </View>
               <Text style={[styles.optionText, selected === i && styles.optionTextSelected]}>
-                {opt}
+                {opt.label}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
+
+        {isOther && (
+          <TextInput
+            style={styles.otherInput}
+            value={otherText}
+            onChangeText={setOtherText}
+            placeholder="Lütfen belirtin..."
+            placeholderTextColor="#7A7A7A"
+          />
+        )}
       </View>
 
       <View style={styles.bottom}>
@@ -44,7 +66,7 @@ export default function GoalSelectionScreen({ navigation }) {
         <PrimaryButton
           title="İlerle"
           onPress={() => navigation.navigate('Placeholder6')}
-          disabled={selected === null}
+          disabled={!canProceed}
         />
       </View>
     </SafeAreaView>
@@ -52,7 +74,7 @@ export default function GoalSelectionScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
+  safe: { flex: 1, backgroundColor: '#FDF6F0' },
   header: {
     flexDirection: 'row',
     paddingHorizontal: 20,
@@ -61,19 +83,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   content: { flex: 1, paddingHorizontal: 20 },
-  questionBox: {
-    height: 80,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: '#B0B0B0',
-    borderRadius: 12,
-    backgroundColor: '#F5F5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
+  title: {
+    fontSize: 26,
+    fontWeight: '600',
+    color: '#3D3D3D',
+    textAlign: 'center',
     marginTop: 16,
   },
-  questionText: { fontSize: 14, color: '#7A7A7A' },
+  subtitle: {
+    fontSize: 15,
+    color: '#7A7A7A',
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 24,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -81,21 +104,42 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   option: {
-    width: '47%',
-    height: 100,
-    borderWidth: 1,
+    width: '44%',
+    height: 130,
+    borderWidth: 0.5,
     borderColor: '#E8E0E5',
-    borderRadius: 12,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
   optionSelected: {
+    borderWidth: 2,
     borderColor: '#C066A0',
     backgroundColor: '#FDF6F0',
   },
-  optionText: { fontSize: 14, fontWeight: '600', color: '#7A7A7A' },
+  iconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  optionText: { fontSize: 14, fontWeight: '600', color: '#3D3D3D' },
   optionTextSelected: { color: '#C066A0' },
-  bottom: { paddingBottom: 24, gap: 12 },
+  otherInput: {
+    height: 48,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E8E0E5',
+    paddingHorizontal: 16,
+    fontSize: 15,
+    color: '#3D3D3D',
+    marginTop: 16,
+  },
+  bottom: { marginBottom: 40, gap: 12 },
   secondaryBtn: {
     width: '90%',
     height: 50,
