@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { COLORS } from '../../theme/colors';
+import { COLORS } from '../../../theme/colors';
 
 const CARDS = [
   { id: 'QuizCard', label: 'Quiz Cards', icon: '🧠' },

@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, Text, StyleSheet } from 'react-native';
-import * as Notifications from 'expo-notifications';
+import { Platform, ScrollView, Text, StyleSheet } from 'react-native';
+import Constants from 'expo-constants';
 import CustomHeader from '../../components/common/CustomHeader';
-import BabyPageSection from '../../components/home/BabyPageSection';
-import DailyStoriesRow from '../../components/home/DailyStoriesRow';
-import ToolsRow from '../../components/home/ToolsRow';
-import CardsGrid from '../../components/home/CardsGrid';
+import BabyPageSection from '../../components/home/baby/BabyPageSection';
+import DailyStoriesRow from '../../components/home/stories/DailyStoriesRow';
+import ToolsRow from '../../components/home/tools/ToolsRow';
+import CardsGrid from '../../components/home/cards/CardsGrid';
 import { COLORS } from '../../theme/colors';
 import { calculatePregnancyInfo } from '../../data/pregnancyHelper';
 import { getDayData } from '../../data/daily/index';
@@ -15,6 +15,18 @@ const getDefaultDueDate = () => {
   d.setDate(d.getDate() + 140);
   return d;
 };
+
+/** Android Expo Go: expo-notifications throws on load (SDK 53+). Dev build / iOS still load it. */
+function getExpoNotifications() {
+  if (Platform.OS === 'android' && Constants.appOwnership === 'expo') {
+    return null;
+  }
+  try {
+    return require('expo-notifications');
+  } catch {
+    return null;
+  }
+}
 
 let permissionRequested = false;
 
@@ -26,7 +38,8 @@ export default function HomeScreen({ navigation }) {
     if (permissionRequested) return;
     permissionRequested = true;
     timerRef.current = setTimeout(() => {
-      Notifications.requestPermissionsAsync();
+      const Notifications = getExpoNotifications();
+      Notifications?.requestPermissionsAsync?.();
     }, 3000);
     return () => clearTimeout(timerRef.current);
   }, []);

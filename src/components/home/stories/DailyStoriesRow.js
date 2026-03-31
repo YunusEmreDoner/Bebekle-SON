@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet } from 'react-native';
-import { COLORS } from '../../theme/colors';
+import { COLORS } from '../../../theme/colors';
 
 export default function DailyStoriesRow({ stories, navigation }) {
   if (!stories || stories.length === 0) return null;

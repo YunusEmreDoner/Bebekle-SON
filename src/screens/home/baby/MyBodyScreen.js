@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet, ScrollView } from 'react-native';
-import { COLORS } from '../../theme/colors';
-import { getWeekData } from '../../data/weekly/index';
+import { COLORS } from '../../../theme/colors';
+import { getWeekData } from '../../../data/weekly/index';
 
 export default function MyBodyScreen({ route }) {
   const currentWeek = route?.params?.currentWeek || 1;

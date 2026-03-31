@@ -69,7 +69,6 @@ export default function StoryViewerScreen({ navigation, route }) {
       onPanResponderRelease: (_, gs) => {
         const idx = currentIndexRef.current;
         if (!moved.current) {
-          // Tap
           if (tapX.current < SCREEN_WIDTH * 0.4) {
             if (idx > 0) setCurrentIndex(idx - 1);
           } else {
@@ -105,13 +104,11 @@ export default function StoryViewerScreen({ navigation, route }) {
     >
       <StatusBar hidden />
 
-      {/* Story content — pointerEvents none so PanResponder captures touches here */}
       <View style={styles.contentArea} pointerEvents="none">
         <Text style={styles.storyTitle}>{story.title}</Text>
         <Text style={styles.storyContent}>{story.content}</Text>
       </View>
 
-      {/* Progress bars */}
       <View style={styles.progressRow}>
         {stories.map((_, i) => (
           <View key={i} style={styles.progressTrack}>
@@ -132,12 +129,10 @@ export default function StoryViewerScreen({ navigation, route }) {
         ))}
       </View>
 
-      {/* Close button — TouchableOpacity claims its own touch, PanResponder won't intercept */}
       <TouchableOpacity style={styles.closeBtn} onPress={() => navigation.goBack()}>
         <Ionicons name="close" size={28} color="#fff" />
       </TouchableOpacity>
 
-      {/* Daha Fazla button */}
       {story.linkTo && (
         <TouchableOpacity style={styles.linkBtn} onPress={() => handleLinkTo(story.linkTo)}>
           <Text style={styles.linkBtnText}>Daha Fazla</Text>

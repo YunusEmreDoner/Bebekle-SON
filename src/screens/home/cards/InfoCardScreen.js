@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '../../theme/colors';
+import { COLORS } from '../../../theme/colors';
 
-export default function QuizCardScreen() {
+export default function InfoCardScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>QuizCardScreen</Text>
+      <Text style={styles.title}>InfoCardScreen</Text>
     </View>
   );
 }

@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { COLORS } from '../../theme/colors';
+import { COLORS } from '../../../theme/colors';
 
 const TOOLS = [
-  { id: 'GenderPrediction', label: 'Gender Prediction', icon: '👶' },
-  { id: 'GenderQuiz', label: 'Quiz', icon: '❓' },
-  { id: 'Zodiac', label: 'Zodiac', icon: '⭐' },
-  { id: 'FoodRecipe', label: 'Food Recipe', icon: '🍎' },
+  { id: 'GenderPrediction', label: 'Cinsiyet tahmini', icon: '👶' },
+  { id: 'DailyQuiz', label: 'Quiz', icon: '❓' },
+  { id: 'Zodiac', label: 'Burç', icon: '⭐' },
+  { id: 'FoodRecipe', label: 'Tarif', icon: '🍎' },
 ];
 
 export default function ToolsRow({ navigation }) {
@@ -46,8 +46,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   toolBox: {
-    width: 80,
-    height: 80,
+    width: 92,
+    minHeight: 88,
     borderRadius: 12,
     backgroundColor: COLORS.acikGri,
     alignItems: 'center',
@@ -61,8 +61,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   toolLabel: {
-    fontSize: 10,
+    fontSize: 9,
     color: COLORS.metin,
     textAlign: 'center',
+    paddingHorizontal: 2,
   },
 });

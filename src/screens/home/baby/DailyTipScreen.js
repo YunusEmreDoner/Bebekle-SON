@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet, ScrollView } from 'react-native';
-import { COLORS } from '../../theme/colors';
-import { getDayData } from '../../data/daily/index';
+import { COLORS } from '../../../theme/colors';
+import { getDayData } from '../../../data/daily/index';
 
 export default function DailyTipScreen({ route }) {
   const currentDay = route?.params?.currentDay || 1;

@@ -10,10 +10,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { COLORS } from '../../theme/colors';
-import { calculatePregnancyInfo } from '../../data/pregnancyHelper';
-import { getWeekData } from '../../data/weekly/index';
-import { getDayData } from '../../data/daily/index';
+import { COLORS } from '../../../theme/colors';
+import { calculatePregnancyInfo } from '../../../data/pregnancyHelper';
+import { getWeekData } from '../../../data/weekly/index';
+import { getDayData } from '../../../data/daily/index';
 
 const { height } = Dimensions.get('window');
 
@@ -50,13 +50,11 @@ export default function BabyPageSection({ navigation, dueDate, onDueDateChange }
 
   return (
     <View style={[styles.container, { backgroundColor: weekData.backgroundColors.secondary }]}>
-      {/* Due date row */}
       <TouchableOpacity style={styles.dueDateRow} onPress={() => setShowPicker(true)}>
         <Text style={styles.dueDateText}>Tahmini doğum: {formatDate(dueDate)}</Text>
         <Ionicons name="pencil-outline" size={14} color={COLORS.mor} style={styles.editIcon} />
       </TouchableOpacity>
 
-      {/* Main info card */}
       <View style={[styles.card, { backgroundColor: weekData.backgroundColors.primary }]}>
         <Text style={styles.weekTitle}>{pregnancyInfo.currentWeek}. Hafta</Text>
         <Text style={styles.babySize}>{weekData.babySize} büyüklüğünde</Text>
@@ -81,7 +79,6 @@ export default function BabyPageSection({ navigation, dueDate, onDueDateChange }
         </View>
       </View>
 
-      {/* Action buttons */}
       <View style={styles.quickActions}>
         <TouchableOpacity
           style={styles.actionBox}
@@ -105,7 +102,6 @@ export default function BabyPageSection({ navigation, dueDate, onDueDateChange }
         </TouchableOpacity>
       </View>
 
-      {/* DatePicker — Android */}
       {Platform.OS === 'android' && showPicker && (
         <DateTimePicker
           value={dueDate}
@@ -116,7 +112,6 @@ export default function BabyPageSection({ navigation, dueDate, onDueDateChange }
         />
       )}
 
-      {/* DatePicker — iOS Modal */}
       {Platform.OS === 'ios' && (
         <Modal visible={showPicker} transparent animationType="slide">
           <View style={styles.modalOverlay}>
