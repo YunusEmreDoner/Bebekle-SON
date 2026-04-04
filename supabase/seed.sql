@@ -1,0 +1,2 @@
+-- Geliştirme ortamı için örnek veri (isteğe bağlı).
+-- `supabase db reset` sonrası çalıştırılır.
